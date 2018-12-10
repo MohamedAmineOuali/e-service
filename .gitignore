@@ -1,0 +1,12 @@
+
+\.idea/
+
+\.Dockerfile\.kate-swp
+
+config-service/\.mvn/
+
+discovery-service/\.mvn/
+
+proxy-service/\.mvn/
+
+product-service/\.mvn/

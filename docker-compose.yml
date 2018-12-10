@@ -1,0 +1,58 @@
+version: '3.4'
+services:
+  config-service:
+    build:
+      context: .
+      target: config-service
+    ports: 
+     - "8888:8888"
+  discovery-service:
+    build:
+      context: .
+      target: discovery-service
+    ports: 
+     - "8761:8761"
+    depends_on:
+      - config-service
+    entrypoint: /wait-for-it.sh config-service:8888 -t 0 --
+    command: java -jar /usr/app/discovery-service-0.0.1-SNAPSHOT.jar --spring.profiles.active=docker
+  proxy-service:
+    build:
+      context: .
+      target: proxy-service
+    ports: 
+     - "9999:9999"
+    depends_on:
+      - discovery-service
+    entrypoint: /wait-for-it.sh discovery-service:8761 -t 0 --
+    command: java -jar /usr/app/proxy-service-0.0.1-SNAPSHOT.jar --spring.profiles.active=docker
+  product-service-8080:
+    build:
+      context: .
+      target: product-service
+    ports: 
+     - "8080:8080"
+    depends_on:
+      - proxy-service
+    entrypoint: /wait-for-it.sh proxy-service:9999 -t 0 --
+    command: java -jar /usr/app/product-service-0.0.1-SNAPSHOT.jar --spring.profiles.active=docker
+  product-service-8081:
+    build:
+      context: .
+      target: product-service
+    ports: 
+     - "8081:8080"
+    depends_on:
+      - proxy-service
+    entrypoint: /wait-for-it.sh proxy-service:9999 -t 0 --
+    command: java -jar /usr/app/product-service-0.0.1-SNAPSHOT.jar --spring.profiles.active=docker
+  product-service-8082:
+    build:
+      context: .
+      target: product-service
+    ports: 
+     - "8082:8080"
+    depends_on:
+      - proxy-service
+    entrypoint: /wait-for-it.sh proxy-service:9999 -- 
+    command: java -jar /usr/app/product-service-0.0.1-SNAPSHOT.jar --spring.profiles.active=docker
